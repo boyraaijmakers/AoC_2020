@@ -1,7 +1,5 @@
 package org.boy.aoc.twentytwenty.exercises;
 
-import java.util.HashMap;
-
 public class Two extends SolutionTemplate {
     @Override
     public String pointOne(String input) {

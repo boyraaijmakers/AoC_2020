@@ -5,6 +5,7 @@ import org.boy.aoc.twentytwenty.exercises.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.spec.ECParameterSpec;
 
 /**
  * Main Advent of Code class
@@ -29,21 +30,15 @@ public class AocMain
     }
 
     public String runDay(int dayNumber, int pointNumber, String input) {
+        SolutionTemplate[] days = {
+                new One(), new Two(), new Three(), new Four(), new Five(), new Six(), new Seven(),
+                new Eight(), new Nine(), new Ten(), new Eleven(), new Twelve(), new Thirteen(),
+                new Fourteen(), new Fifteen(), new Sixteen(), new Seventeen(), new Eighteen(),
+                new Nineteen(), new Twenty(), new Twentyone(), new Twentytwo(), new Twentythree(),
+                new Twentyfour(), new Twentyfive()
+        };
 
-        SolutionTemplate day;
-
-        switch (dayNumber) {
-            case 1:
-                day = new One();
-                break;
-            case 2:
-                day = new Two();
-                break;
-            default:
-                return "dayNumber not recognized";
-        }
-
-        return (pointNumber == 1) ? day.pointOne(input) : day.pointTwo(input);
+        return (pointNumber == 1) ? days[dayNumber - 1].pointOne(input) : days[dayNumber - 1].pointTwo(input);
     }
 
     public String readInput(String fileLocation) throws IOException {

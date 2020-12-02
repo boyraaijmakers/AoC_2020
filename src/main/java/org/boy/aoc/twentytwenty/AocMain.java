@@ -36,6 +36,9 @@ public class AocMain
             case 1:
                 day = new One();
                 break;
+            case 2:
+                day = new Two();
+                break;
             default:
                 return "dayNumber not recognized";
         }

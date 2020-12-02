@@ -5,7 +5,6 @@ import org.boy.aoc.twentytwenty.exercises.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.spec.ECParameterSpec;
 
 /**
  * Main Advent of Code class

@@ -1,7 +1,5 @@
 package org.boy.aoc.twentytwenty.exercises;
 
-import java.util.Arrays;
-
 public class Three extends SolutionTemplate {
     @Override
     public String pointOne(String input) {

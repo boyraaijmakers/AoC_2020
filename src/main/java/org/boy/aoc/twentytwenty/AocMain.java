@@ -19,6 +19,7 @@ public class AocMain
         int dayNumber = Integer.parseInt(args[1]);
         int pointNumber = Integer.parseInt(args[2]);
 
+        long timeStart = System.currentTimeMillis();
         System.out.println(
                 main.runDay(
                         dayNumber,
@@ -26,6 +27,9 @@ public class AocMain
                         main.readInput(inputFileLocation)
                 )
         );
+        long timeEnd = System.currentTimeMillis();
+
+        System.out.println("\nSolution time: " + (timeEnd - timeStart) + "ms");
     }
 
     public String runDay(int dayNumber, int pointNumber, String input) {

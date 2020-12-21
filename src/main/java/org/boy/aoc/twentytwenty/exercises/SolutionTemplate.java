@@ -14,4 +14,13 @@ public abstract class SolutionTemplate {
     public int[] inputToIntArray(String input, String delim) {
         return Arrays.stream(input.split(delim)).mapToInt(Integer::parseInt).toArray();
     }
+
+    public void print(Object object) {
+        print(object, true);
+    }
+
+    public void print(Object object, boolean newline) {
+        if (newline) System.out.println(object);
+        else System.out.print(object);
+    }
 }

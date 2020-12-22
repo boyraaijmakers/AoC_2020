@@ -10,12 +10,10 @@ public class Eighteen extends SolutionTemplate {
 
         for (String line: input.split("\n")) {
             sumValue = sumValue.add(
-                    eveuateRpn(
-                            infixToRpn(
-                                    line.replace(" ", "").strip(),
-                                    false
-                            )
-                    )
+                    eveuateRpn(infixToRpn(
+                            line.replace(" ", "").strip(),
+                            false
+                    ))
             );
         }
         return String.valueOf(sumValue);
@@ -37,7 +35,6 @@ public class Eighteen extends SolutionTemplate {
         }
         return String.valueOf(sumValue);
     }
-
 
     private BigInteger eveuateRpn(String rpn) {
         HashSet<String> operators = new HashSet<>();
@@ -66,7 +63,6 @@ public class Eighteen extends SolutionTemplate {
         return stack.pop();
     }
 
-    
     // Method is used to get the precedence of operators
     private static boolean letterOrDigit(char c) {
         // boolean check
@@ -75,7 +71,7 @@ public class Eighteen extends SolutionTemplate {
 
     // Operator having higher precedence
     // value will be returned
-    static int getPrecedence(char ch, boolean ordering) {
+    private static int getPrecedence(char ch, boolean ordering) {
         if (ch == '+' || (ch == '*' && !ordering))
             return 2;
         else if (ch == '*')
@@ -86,7 +82,7 @@ public class Eighteen extends SolutionTemplate {
 
     // Method converts  given infixto postfix expression
     // to illustrate shunting yard algorithm
-    static String infixToRpn(String expression, boolean ordering) {
+    private static String infixToRpn(String expression, boolean ordering) {
         // Initalising an empty String
         // (for output) and an empty stack
         Stack<Character> stack = new Stack<>();

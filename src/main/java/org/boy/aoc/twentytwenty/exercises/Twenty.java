@@ -41,98 +41,100 @@ public class Twenty extends SolutionTemplate {
     @Override
     public String pointTwo(String input) {
         String dummy = pointOne(input);
-        int startCorners = 3593;
+        int startCorners = 3593; // Hardcoded cornerpiece found in previous exercise
+
         Tile[][] puzzle = new Tile[12][12];
+        Tile currentTile = cameras.get(startCorners);
 
-        int currentPiece = startCorners;
-        Tile currentTile = cameras.get(currentPiece);
-
+        // Rotate the first cornerpiece until the borders are left and up.
         while (
-                !(isBorder(currentTile.getBorderId("left"))
-                        && isBorder(currentTile.getBorderId("up"))
-                )
+                isBorder(currentTile.getBorderId("right"))
+                        || isBorder(currentTile.getBorderId("down"))
         ) {
             currentTile.rotateLeft();
         }
 
+        // Fit in the first piece, ready to process the rest
         puzzle[0][0] = currentTile;
 
         for (int i = 0; i < puzzle.length; i++) {
             for (int j = 0; j < puzzle.length; j++) {
-                if (j == 0 && i == 0) continue;
+                if (j == 0 && i == 0) continue; // Skip starting cornerpiece inserted already.
+
+                // If the the first element of a row is matched, it should be matched to the tile above, else to the
+                // tile to its left.
+                Tile toBeMatched;
+                String directionMatch;
+                String contraDirection;
 
                 if (j == 0) {
-                    Tile toBeMatched = puzzle[i - 1][j];
-                    int cameraIdToMatch = toBeMatched.getTileId();
-                    int borderIdToMatch = toBeMatched.getBorderId("down");
-                    List<Integer> matchingCameras = borderMap.get(borderIdToMatch);
-
-                    currentTile = cameras.get(
-                            (matchingCameras.get(0) != cameraIdToMatch) ?
-                                    matchingCameras.get(0) : matchingCameras.get(1)
-                    );
-
-                    while (toBeMatched.getBorderId("down") != currentTile.getBorderId("up"))
-                        currentTile.rotateLeft();
-
-                    if (toBeMatched.matchBorder(currentTile, "down"))
-                        currentTile.flipX();
-
-                    puzzle[i][j] = currentTile;
+                    toBeMatched = puzzle[i - 1][j];
+                    directionMatch = "down";
+                    contraDirection = "up";
                 } else {
-                    Tile toBeMatched = puzzle[i][j - 1];
-                    int cameraIdToMatch = toBeMatched.getTileId();
-                    int borderIdToMatch = toBeMatched.getBorderId("right");
-                    List<Integer> matchingCameras = borderMap.get(borderIdToMatch);
-
-                    currentTile = cameras.get(
-                            (matchingCameras.get(0) != cameraIdToMatch) ?
-                                    matchingCameras.get(0) : matchingCameras.get(1)
-                    );
-
-                    while (toBeMatched.getBorderId("right") != currentTile.getBorderId("left")) {
-                        currentTile.rotateLeft();
-                    }
-
-                    if (toBeMatched.matchBorder(currentTile, "right"))
-                        currentTile.flipY();
-
-                    puzzle[i][j] = currentTile;
+                    toBeMatched = puzzle[i][j - 1];
+                    directionMatch = "right";
+                    contraDirection = "left";
                 }
+
+                int cameraIdToMatch = toBeMatched.getTileId();
+                int borderIdToMatch = toBeMatched.getBorderId(directionMatch);
+                List<Integer> matchingCameras = borderMap.get(borderIdToMatch);
+
+                // Using the matching border, extract the camera ID of the other camera.
+                currentTile = cameras.get(
+                        (matchingCameras.get(0) != cameraIdToMatch) ?
+                                matchingCameras.get(0) : matchingCameras.get(1)
+                );
+
+                // Rotate until the border ID's align.
+                while (toBeMatched.getBorderId(directionMatch) != currentTile.getBorderId(contraDirection))
+                    currentTile.rotateLeft();
+
+                // Check if the piece needs to be flipped. If the border ID's match but the borders themselves do
+                // not, then a flip is necessary. Depending on which border is matched, a different flip is necessary.
+                if (toBeMatched.matchBorder(currentTile, directionMatch)){
+                    if  (j == 0) currentTile.flipX();
+                    else currentTile.flipY();
+                }
+
+                // At this point the pieces fits in the puzzle, so store it.
+                puzzle[i][j] = currentTile;
             }
         }
 
-        String puzzleCompleteNotClean = "";
+        // Parse the complete puzzle result by looping over all pieces, disregarding borders.
+        String puzzleComplete = "";
         for (Tile[] row: puzzle) {
             for (int i = 1; i < 9; i++) {
                 for (Tile tile: row) {
-                    puzzleCompleteNotClean += tile.getRow(i).substring(1, 9);
+                    puzzleComplete += tile.getRow(i).substring(1, 9);
                 }
-                puzzleCompleteNotClean += "\n";
+                puzzleComplete += "\n";
             }
         }
 
-        Tile puzzleTile = new Tile(0, puzzleCompleteNotClean.split("\n"));
+        // Create one big tile from the puzzle solution (for easy flipping and rotating).
+        Tile puzzleTile = new Tile(0, puzzleComplete.split("\n"));
 
-        long totalSea = puzzleCompleteNotClean.chars().filter(e -> e == '#').count();
+        // Count the number of '#''s in the complete puzzle
+        long totalSea = puzzleComplete.chars().filter(e -> e == '#').count();
         int totalMonsters = 0;
-        
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.flipX();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
-        puzzleTile.rotateLeft();
-        totalMonsters += checkSeaMonster(puzzleTile);
 
+        // There exists one direction for which sea monsters can be found. To brute force this, all possible
+        // orientations are checked and the number of monsters (0 for each orientation except for the correct one) are
+        // summed.
+        for (int i = 0; i < 4; i++) {
+            totalMonsters += checkSeaMonster(puzzleTile);
+            puzzleTile.rotateLeft();
+        }
+        puzzleTile.flipX();
+        for (int i = 0; i < 4; i++) {
+            totalMonsters += checkSeaMonster(puzzleTile);
+            puzzleTile.rotateLeft();
+        }
+
+        // As monsters do not overlap, the result is simply the sea minus the number of monsters times their size.
         return String.valueOf(totalSea - totalMonsters * 15);
     }
 
@@ -220,7 +222,6 @@ public class Twenty extends SolutionTemplate {
             return this.content[row][col];
         }
 
-
         public int getSize() {
             return this.contentSize;
         }
@@ -288,20 +289,20 @@ public class Twenty extends SolutionTemplate {
             this.content = newContent;
         }
 
-        public void rotateLeft() {
-            char[][] newContent = new char[this.contentSize][this.contentSize];
-            for (int i = 0; i < this.contentSize; i++)
-                for (int j = 0; j < this.contentSize; j++)
-                    newContent[this.contentSize - 1 - j][i] = this.content[i][j];
-
-            this.content = newContent;
-        }
-
         public void flipY() {
             char[][] newContent = new char[this.contentSize][this.contentSize];
             for (int i = 0; i < this.contentSize; i++)
                 for (int j = 0; j < this.contentSize; j++)
                     newContent[this.contentSize - 1 - i][j] = this.content[i][j];
+
+            this.content = newContent;
+        }
+
+        public void rotateLeft() {
+            char[][] newContent = new char[this.contentSize][this.contentSize];
+            for (int i = 0; i < this.contentSize; i++)
+                for (int j = 0; j < this.contentSize; j++)
+                    newContent[this.contentSize - 1 - j][i] = this.content[i][j];
 
             this.content = newContent;
         }
